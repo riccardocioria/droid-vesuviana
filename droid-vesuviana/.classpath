@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry kind="lib" path="C:/Users/Riccardo/android_Workspace/circum/lib/gson-1.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/ormlite-android-4.20.jar" sourcepath="lib/ormlite-android-4.20-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/circum/lib/ormlite-android-4.20-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/ormlite-core-4.20.jar" sourcepath="lib/ormlite-core-4.20-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/circum/lib/ormlite-core-4.20-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

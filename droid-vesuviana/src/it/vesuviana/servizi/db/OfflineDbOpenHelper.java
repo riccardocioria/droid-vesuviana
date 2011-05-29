@@ -20,7 +20,6 @@ public class OfflineDbOpenHelper extends OrmLiteSqliteOpenHelper {
 	// the DAO object we use to access the SimpleData table
 	private Dao<Stazione, Integer> stazioneDAO = null;
 
-	
 
 	public OfflineDbOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -40,19 +39,9 @@ public class OfflineDbOpenHelper extends OrmLiteSqliteOpenHelper {
 			Log.i(OfflineDbOpenHelper.class.getName(), "onCreate");
 			TableUtils.createTable(connectionSource, Stazione.class);
 
-			// here we try inserting data in the on-create as a test
-			Dao<Stazione, Integer> dao = getStazioneDao();
 			long millis = System.currentTimeMillis();
-			// create some entries in the onCreate
-			Stazione partenza = new Stazione();
 			
-			partenza.codStazione = "1";
-			partenza.nomeStaz = "Stazione";
-			partenza.descrizioneBreve = "Seleziona una stazione di partenza";
-			
-			dao.create(partenza);
-			
-			Log.i(OfflineDbOpenHelper.class.getName(), "created record iniziali in onCreate: " + millis);
+			Log.i(OfflineDbOpenHelper.class.getName(), "Fine onCreate: " + millis);
 		} catch (SQLException e) {
 			Log.e(OfflineDbOpenHelper.class.getName(), "Problemi nella creazione del db", e);
 			throw new RuntimeException(e);

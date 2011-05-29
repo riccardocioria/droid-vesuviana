@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="update">Aggiorna</string>
+    <string name="uploadStations">Aggiorna le stazioni</string>
+    <string name="settings">impostazioni</string>
     
     
     <string name="hello">Benvenuto Vesuviana for Android</string>
@@ -8,4 +11,8 @@
 <string name="arrivo">Stazione di arrivo</string>
 
 <string name="avvisoNoConnection">Attenzione! Non è presente alcuna connessione, i dati potrebbero essere non aggiornati.</string>
+
+
+<string name="dbException">Database exeption: </string>
+<string name="connException">Attenzione! Non è presente alcuna connessione, i dati potrebbero essere non aggiornati.</string>
 </resources>

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:titleCondensed="@string/settings" android:id="@+id/settings" android:enabled="true" android:title="@string/settings" android:visible="true" android:menuCategory="container"></item>
-<item android:titleCondensed="@string/update" android:enabled="true" android:title="@string/uploadStations" android:visible="true" android:menuCategory="container" android:id="@+id/update"></item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:titleCondensed="@string/settings" android:id="@+id/settings"
+		android:enabled="true" android:title="@string/settings"
+		android:visible="true" android:menuCategory="container"
+		android:icon="@drawable/ic_menu_preferences"></item>
+	<item android:titleCondensed="@string/update" android:enabled="true"
+		android:title="@string/uploadStations" android:visible="true"
+		android:menuCategory="container" android:id="@+id/update"
+		android:icon="@drawable/ic_menu_refresh"></item>
 </menu>

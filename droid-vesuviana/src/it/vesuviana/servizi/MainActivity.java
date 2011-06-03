@@ -3,6 +3,7 @@ package it.vesuviana.servizi;
 import it.vesuviana.servizi.command.CmdRetreiveStations;
 import it.vesuviana.servizi.command.request.RetreiveStationsRequest;
 import it.vesuviana.servizi.db.OfflineDbOpenHelper;
+import it.vesuviana.servizi.model.Preference;
 import it.vesuviana.servizi.model.Stazioni;
 import it.vesuviana.servizi.model.Stazioni.Stazione;
 
@@ -20,36 +21,27 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 	private final String LOG_TAG = getClass().getSimpleName();
-	private ArrayAdapter<CharSequence> m_adapterForSpinner;
-	private Spinner partenzaSpinner;
-	private Spinner arrivoSpinner;
+	private final int DEFAULT_LAYOUT = R.layout.main;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-
+		
 		try {
-			// get our dao
-			Dao<Stazione, Integer> simpleDao = getHelper().getStazioneDao();
-			// query for all of the data objects in the database
-			List<Stazione> stazioni = simpleDao.queryForAll();
-			
-			if(stazioni.size() < 1)
-				updateStations();
-			
-			partenzaSpinner = (Spinner)findViewById(R.id.partenza);
-			arrivoSpinner = (Spinner)findViewById(R.id.arrivo);
-
-			fillSpinner(partenzaSpinner, stazioni);
-			fillSpinner(arrivoSpinner, stazioni);
+			//set layout
+			setContentView(getPreferredLayout());
+			// riempimento delle stazioni in base al layout impostato
+			fillStations(findViewById(R.id.partenza));
+			fillStations(findViewById(R.id.arrivo));
 		} catch (SQLException e) {
 			Log.e(LOG_TAG, "Database exception", e);
 			Toast.makeText(this, "Database exeption: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -68,7 +60,7 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 		inflater.inflate(R.menu.menu, menu);
 		return true;
 	}	
-
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle item selection
@@ -76,23 +68,77 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 		case R.id.update:
 			try {
 				updateStations();
-			} catch (IOException e) {
+			} catch (SQLException e) {
 				Log.e(LOG_TAG, "Database exception", e);
 				Toast.makeText(this, "Database exeption: " + e.getMessage(), Toast.LENGTH_LONG).show();
 				return false;
-			} catch (SQLException e) {
+			} catch (IOException e) {
 				Log.e(LOG_TAG, "IO exception", e);
 				Toast.makeText(this, "IO exeption: " + e.getMessage(), Toast.LENGTH_LONG).show();
 				return false;
 			}
 			return true;
+		case R.id.spinnerLayout:
+			try {
+				setContentView(R.layout.main);
+				setPreferredLayout(R.layout.main);
+				fillStations(findViewById(R.id.partenza));
+				fillStations(findViewById(R.id.arrivo));
+			} catch (SQLException e) {
+				Log.e(LOG_TAG, "Database exception", e);
+				Toast.makeText(this, "Database exeption: " + e.getMessage(), Toast.LENGTH_LONG).show();
+				return false;
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "IO exception", e);
+				Toast.makeText(this, "IO exeption: " + e.getMessage(), Toast.LENGTH_LONG).show();
+				return false;
+			}
+			return true;
+		case R.id.autoCompleteLayout:
+			try {
+				setContentView(R.layout.main_ac);
+				setPreferredLayout(R.layout.main_ac);
+				fillStations(findViewById(R.id.partenza));
+				fillStations(findViewById(R.id.arrivo));
+			} catch (SQLException e) {
+				Log.e(LOG_TAG, "Database exception", e);
+				Toast.makeText(this, "Database exeption: " + e.getMessage(), Toast.LENGTH_LONG).show();
+				return false;
+			} catch (IOException e) {
+				Log.e(LOG_TAG, "IO exception", e);
+				Toast.makeText(this, "IO exeption: " + e.getMessage(), Toast.LENGTH_LONG).show();
+				return false;
+			}
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
+	
+	private void fillStations(View viewId) throws IOException, SQLException {
+		// get our dao
+		Dao<Stazione, Integer> simpleDao = getHelper().getStazioneDao();
+		// query for all of the data objects in the database
+		List<Stazione> stazioni = simpleDao.queryForAll();
+		
+		if(stazioni.size() < 1)
+			updateStations();
+		
+		if(viewId instanceof AutoCompleteTextView)
+			fillAutoCompleteTextBox((AutoCompleteTextView)viewId, stazioni);
+		if(viewId instanceof Spinner)
+			fillSpinner((Spinner)viewId, stazioni);
+	}
 
+	private void fillAutoCompleteTextBox(AutoCompleteTextView textBox, List<Stazione> stazioni) throws IOException {
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item);
+		if(stazioni != null && stazioni.size() >0)
+			for (Stazione s : stazioni)
+				adapter.add(s.nomeStaz);
+		textBox.setAdapter(adapter);
+	}
+	
 	private void fillSpinner(Spinner spinner, List<Stazione> stazioni) throws IOException {
-		m_adapterForSpinner = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
+		ArrayAdapter<CharSequence> m_adapterForSpinner = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		m_adapterForSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);        
 		spinner.setAdapter(m_adapterForSpinner);
 
@@ -136,6 +182,31 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 		}
 		else {
 			throw new IOException("Attenzione! Non è presente alcuna connessione, i dati potrebbero essere non aggiornati.");
+		}
+	}
+	
+	private int getPreferredLayout() throws SQLException {
+		Dao<Preference, String> preferencesDao = getHelper().getPreferencesDao();
+		Preference layout = preferencesDao.queryForId("layout");
+		if(layout != null) {
+			int preferredLayout = Integer.parseInt(layout.value);
+			return preferredLayout;
+		}
+		return DEFAULT_LAYOUT;
+	}
+	
+	private int setPreferredLayout(Integer preferredLayout) throws SQLException {
+		Dao<Preference, String> preferencesDao = getHelper().getPreferencesDao();
+		Preference layout = preferencesDao.queryForId("layout");
+		if(layout != null) {
+			layout.value = preferredLayout.toString();
+			return preferencesDao.update(layout);
+		}
+		else {
+			layout = new Preference();
+			layout.name = "layout";
+			layout.value = preferredLayout.toString();
+			return preferencesDao.create(layout);
 		}
 	}
 }

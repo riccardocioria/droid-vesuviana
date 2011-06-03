@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="spinnerLayout">Menu a discesa</string>
+    <string name="autoCompleteLayout">Auto Completamento</string>
+    <string name="search">Cerca</string>
     <string name="update">Aggiorna</string>
     <string name="uploadStations">Aggiorna le stazioni</string>
     <string name="settings">Impostazioni</string>

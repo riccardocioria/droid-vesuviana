@@ -5,18 +5,10 @@
 	<TextView android:layout_width="fill_parent" android:text="@string/hello"
 		android:id="@+id/TextView03" android:layout_height="wrap_content"
 		android:textStyle="bold" android:layout_x="0dip" android:layout_y="0dip"></TextView>
-	<TextView android:layout_width="wrap_content" android:text="@string/partenza"
-		android:id="@+id/TextView02" android:layout_height="wrap_content"
-		android:layout_x="11dip" android:layout_y="28dip"></TextView>
-	<Spinner android:layout_width="wrap_content" android:id="@+id/partenza"
-		android:layout_height="wrap_content" android:layout_x="20dip"
-		android:layout_y="49dip"></Spinner>
-	<TextView android:layout_width="wrap_content" android:text="@string/arrivo"
-		android:id="@+id/TextView01" android:layout_height="wrap_content"
-		android:layout_x="11dip" android:layout_y="102dip"></TextView>
-	<Spinner android:layout_width="wrap_content" android:id="@+id/arrivo"
-		android:layout_height="wrap_content" android:layout_x="20dip"
-		android:layout_y="126dip"></Spinner>
+	
+	
+	
+	
 	
 	<Button android:id="@+id/cerca" android:layout_width="wrap_content"
 		android:text="@string/search" android:layout_height="wrap_content"
@@ -28,4 +20,8 @@
 
 
 
+
+
+<AutoCompleteTextView android:layout_height="wrap_content" android:layout_x="8dip" android:layout_y="25dip" android:text="@string/partenza" android:layout_width="300dip" android:id="@+id/partenza"></AutoCompleteTextView>
+<AutoCompleteTextView android:layout_x="8dip" android:id="@+id/arrivo" android:layout_height="wrap_content" android:layout_y="85dip" android:text="@string/arrivo" android:layout_width="300dip"></AutoCompleteTextView>
 </AbsoluteLayout>

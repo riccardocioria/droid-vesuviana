@@ -3,7 +3,21 @@
 	<item android:titleCondensed="@string/settings" android:id="@+id/settings"
 		android:enabled="true" android:title="@string/settings"
 		android:visible="true" android:menuCategory="container"
-		android:icon="@drawable/ic_menu_preferences"></item>
+		android:icon="@drawable/ic_menu_preferences">
+		<menu>
+			<group android:enabled="true" android:visible="true"
+				android:menuCategory="container" android:id="@+id/layout">
+				<item android:enabled="true" android:menuCategory="alternative"
+					android:visible="true" android:icon="@drawable/ic_menu_text"
+					android:title="@string/autoCompleteLayout" android:titleCondensed="@string/autoCompleteLayout"
+					android:id="@+id/autoCompleteLayout" android:checkable="true"></item>
+				<item android:enabled="true" android:menuCategory="alternative"
+					android:visible="true" android:checkable="true"
+					android:icon="@drawable/ic_menu_show_list" android:title="@string/spinnerLayout"
+					android:titleCondensed="@string/spinnerLayout" android:id="@+id/spinnerLayout"></item>
+			</group>
+		</menu>
+	</item>
 	<item android:titleCondensed="@string/update" android:enabled="true"
 		android:title="@string/uploadStations" android:visible="true"
 		android:menuCategory="container" android:id="@+id/update"

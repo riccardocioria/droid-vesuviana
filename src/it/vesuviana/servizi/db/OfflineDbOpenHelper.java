@@ -20,7 +20,7 @@ public class OfflineDbOpenHelper extends OrmLiteSqliteOpenHelper {
 	private static final String PREFERENCES_TABLE_NAME = "preference";
 	
 	// the DAO objects we use to access the SimpleData table
-	private Dao<Stazione, Integer> stazioneDAO = null;
+	private Dao<Stazione, String> stazioneDAO = null;
 	private Dao<Preference, String> preferencesDAO = null;
 
 
@@ -87,7 +87,7 @@ public class OfflineDbOpenHelper extends OrmLiteSqliteOpenHelper {
 	 * Returns the Database Access Object (DAO) for our Stazione class. It will create it or just give the cached
 	 * value.
 	 */
-	public Dao<Stazione, Integer> getStazioneDao() throws SQLException {
+	public Dao<Stazione, String> getStazioneDao() throws SQLException {
 		if (stazioneDAO == null) {
 			stazioneDAO = getDao(Stazione.class);
 		}

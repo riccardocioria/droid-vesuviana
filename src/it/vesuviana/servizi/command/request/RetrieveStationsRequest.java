@@ -1,11 +1,11 @@
 package it.vesuviana.servizi.command.request;
 
-public class RetreiveStationsRequest extends Request {
-	public RetreiveStationsRequest(String url) {
+public class RetrieveStationsRequest extends Request {
+	public RetrieveStationsRequest(String url) {
 		super(url);
 	}
 	
-	public RetreiveStationsRequest() {
+	public RetrieveStationsRequest() {
 		this("http://servizi.vesuviana.it/Orari/integrazione3/OrarioDinamico/www/FrontJS/jsonServer.asp?l=it&v=stazioni&r=listaStazioni");
 	}
 

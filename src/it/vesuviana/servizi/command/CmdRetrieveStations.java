@@ -12,7 +12,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
-public class CmdRetreiveStations extends Command {
+public class CmdRetrieveStations extends Command {
 	
 	public Object execute(Request req) throws IOException {
 		InputStream source = retrieveStream(req);

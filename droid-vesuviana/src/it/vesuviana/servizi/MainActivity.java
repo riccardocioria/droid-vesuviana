@@ -1,9 +1,10 @@
 package it.vesuviana.servizi;
 
-import it.vesuviana.servizi.command.CmdRetreiveStations;
-import it.vesuviana.servizi.command.request.RetreiveStationsRequest;
+import it.vesuviana.servizi.command.CmdRetrieveStations;
+import it.vesuviana.servizi.command.request.RetrieveStationsRequest;
 import it.vesuviana.servizi.db.OfflineDbOpenHelper;
 import it.vesuviana.servizi.model.Preference;
+import it.vesuviana.servizi.model.Solution;
 import it.vesuviana.servizi.model.Stazioni;
 import it.vesuviana.servizi.model.Stazioni.Stazione;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.j256.ormlite.dao.Dao;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,14 +24,19 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.DatePicker;
 import android.widget.Spinner;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 	private final String LOG_TAG = getClass().getSimpleName();
 	private final int DEFAULT_LAYOUT = R.layout.main;
+	private Solution toSearch;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -39,6 +46,19 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 		try {
 			//set layout
 			setContentView(getPreferredLayout());
+			
+			// inizializzazione componenti
+			TimePicker orario = (TimePicker)findViewById(R.id.orario);
+			orario.setIs24HourView(true);
+			
+//			Button cerca = (Button)findViewById(R.id.cerca);
+//			cerca.setOnClickListener(new CercaOnClickListener(
+//					findViewById(R.id.partenza),
+//					findViewById(R.id.arrivo),
+//					findViewById(R.id.orario),
+//					findViewById(R.id.data),
+//					getHelper()
+//			));
 			// riempimento delle stazioni in base al layout impostato
 			fillStations(findViewById(R.id.partenza));
 			fillStations(findViewById(R.id.arrivo));
@@ -78,6 +98,7 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 				return false;
 			}
 			return true;
+		// selezione del tipo di layout
 		case R.id.spinnerLayout:
 			try {
 				setContentView(R.layout.main);
@@ -114,30 +135,73 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 		}
 	}
 	
-	private void fillStations(View viewId) throws IOException, SQLException {
+	/**
+	 * Fill the {@link Spinner} or {@link AutoCompleteTextView} with the stations value. It read the values on database
+	 * and fill the {@link View} component.
+	 * 
+	 * @param view the element to fill
+	 * @throws IOException if there is not Internet connection or if the retrieving fail
+	 * @throws SQLException if there is error on database interaction
+	 */
+	private void fillStations(View view) throws IOException, SQLException {
 		// get our dao
-		Dao<Stazione, Integer> simpleDao = getHelper().getStazioneDao();
+		Dao<Stazione, String> simpleDao = getHelper().getStazioneDao();
 		// query for all of the data objects in the database
 		List<Stazione> stazioni = simpleDao.queryForAll();
 		
 		if(stazioni.size() < 1)
-			updateStations();
+			stazioni = updateStations();
 		
-		if(viewId instanceof AutoCompleteTextView)
-			fillAutoCompleteTextBox((AutoCompleteTextView)viewId, stazioni);
-		if(viewId instanceof Spinner)
-			fillSpinner((Spinner)viewId, stazioni);
+		if(view instanceof AutoCompleteTextView) {
+			// settaggio del numero di caratteri entro cui avviare l'autocompletamento a 1
+			((AutoCompleteTextView)view).setThreshold(1);
+			// creazione degli eventi da associare alle textbox di autocompletamento 
+			// nel caso di click si cancella il contenuto quando è quello di partena
+			((AutoCompleteTextView)view).setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+					AutoCompleteTextView textBox = (AutoCompleteTextView)v;
+					if (textBox.getText().equals(getString(R.string.partenza))
+							|| textBox.getText().equals(getString(R.string.arrivo))) {
+						textBox.setText("");
+					}
+				}
+			});
+			// nel caso di click lungo si cancella il contenuto anche se non è quello di partenza
+			((AutoCompleteTextView)view).setOnLongClickListener(new OnLongClickListener() {
+				public boolean onLongClick(View v) {
+					AutoCompleteTextView textBox = (AutoCompleteTextView)v;
+					textBox.setText("");
+					return true;
+				}
+			});
+			fillAutoCompleteTextBox((AutoCompleteTextView)view, stazioni);
+		}
+		if(view instanceof Spinner) {
+			fillSpinner((Spinner)view, stazioni);
+		}
 	}
 
-	private void fillAutoCompleteTextBox(AutoCompleteTextView textBox, List<Stazione> stazioni) throws IOException {
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item);
+	/**
+	 * Fill {@link AutoCompleteTextView} element with stations
+	 * 
+	 * @param textBox the AutoCompleteTextView to fill
+	 * @param stazioni the list of the stations
+	 */
+	private void fillAutoCompleteTextBox(AutoCompleteTextView textBox, List<Stazione> stazioni) {
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line);
 		if(stazioni != null && stazioni.size() >0)
 			for (Stazione s : stazioni)
 				adapter.add(s.nomeStaz);
 		textBox.setAdapter(adapter);
 	}
 	
-	private void fillSpinner(Spinner spinner, List<Stazione> stazioni) throws IOException {
+	/**
+	 * Fill {@link Spinner} element with stations
+	 * 
+	 * @param spinner the Spinner to fill
+	 * @param stazioni the list of the stations
+	 */
+	private void fillSpinner(Spinner spinner, List<Stazione> stazioni) {
 		ArrayAdapter<CharSequence> m_adapterForSpinner = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item);
 		m_adapterForSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);        
 		spinner.setAdapter(m_adapterForSpinner);
@@ -148,6 +212,11 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 	}
 
 
+	/**
+	 * Check if the system has Internet access
+	 * 
+	 * @return <b>true</b> if is connected to Internet or <b>false</b> otherwise
+	 */
 	private boolean isConnected() {
 		ConnectivityManager connec =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -159,10 +228,17 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 		}
 	}
 
-	private void updateStations() throws IOException, SQLException {
+	/**
+	 * This method read stations from the server and put them on the database 
+	 * 
+	 * @return the updated {@link List} of the stations
+	 * @throws IOException if there is not Internet connection or if the retrieving fail
+	 * @throws SQLException if there is error on database interaction
+	 */
+	private List<Stazione> updateStations() throws IOException, SQLException {
 		if (isConnected()) {
 			// recupero delle stazioni
-			Object response = new CmdRetreiveStations().execute(new RetreiveStationsRequest());
+			Object response = new CmdRetrieveStations().execute(new RetrieveStationsRequest());
 
 			@SuppressWarnings("unchecked")
 			List<Stazione> stazioni = (List<Stazione>) response;
@@ -170,7 +246,7 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 			Collections.sort(stazioni, Stazioni.NOME_STAZIONE_COMPARATOR);
 
 			// inserimento delle stazioni nel db
-			Dao<Stazione, Integer> simpleDao = getHelper().getStazioneDao();
+			Dao<Stazione, String> simpleDao = getHelper().getStazioneDao();
 
 			getHelper().clearTableStazione();
 
@@ -179,12 +255,20 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 				i += simpleDao.create(s);
 
 			Toast.makeText(this, "Record creati: " + i, Toast.LENGTH_LONG).show();
+			return stazioni;
 		}
 		else {
 			throw new IOException("Attenzione! Non è presente alcuna connessione, i dati potrebbero essere non aggiornati.");
 		}
 	}
 	
+	/**
+	 * The method <b>getPreferredLayout</b> read the value of the preferred layout if it is
+	 * present on the database or return the default layout id
+	 * 
+	 * @return the id of the preferred layout (AutoComplete or Spinner)
+	 * @throws SQLException
+	 */
 	private int getPreferredLayout() throws SQLException {
 		Dao<Preference, String> preferencesDao = getHelper().getPreferencesDao();
 		Preference layout = preferencesDao.queryForId("layout");
@@ -195,6 +279,13 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 		return DEFAULT_LAYOUT;
 	}
 	
+	/**
+	 * The method <b>setPreferredLayout</b> set the preferred layout id on the database
+	 * 
+	 * @param preferredLayout the id of the layout to set preferred
+	 * @return the number of record updated or created
+	 * @throws SQLException
+	 */
 	private int setPreferredLayout(Integer preferredLayout) throws SQLException {
 		Dao<Preference, String> preferencesDao = getHelper().getPreferencesDao();
 		Preference layout = preferencesDao.queryForId("layout");
@@ -208,5 +299,60 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 			layout.value = preferredLayout.toString();
 			return preferencesDao.create(layout);
 		}
+	}
+	
+	public void cerca(View view) {
+		init(findViewById(R.id.partenza),
+				findViewById(R.id.arrivo),
+				findViewById(R.id.orario),
+				findViewById(R.id.data)
+		);
+		Dao<Stazione, String> simpleDao;
+		try {
+			simpleDao = getHelper().getStazioneDao();
+			Stazione partenza = simpleDao.queryForEq("nome_staz", toSearch.getPartenza()).get(0);
+			Stazione arrivo = simpleDao.queryForEq("nome_staz", toSearch.getArrivo()).get(0);
+			toSearch.setPartenza(partenza.codStazione);
+			toSearch.setArrivo(arrivo.codStazione);
+//			Object response = new CmdRetrieveSolutions().execute(new RetrieveSolutionsRequest(toSearch));
+			
+			Intent intent = new Intent(this, ShowSearchActivity.class);
+			intent.putExtra("toSearch", toSearch);
+			startActivity(intent);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void init(View partenza, View arrivo, View orario, View data) { 
+		toSearch = new Solution();
+		if(partenza instanceof AutoCompleteTextView && arrivo instanceof AutoCompleteTextView) {
+			init((AutoCompleteTextView)partenza, (AutoCompleteTextView)arrivo, (TimePicker)orario, (DatePicker)data);
+		}
+		else if(partenza instanceof Spinner && arrivo instanceof Spinner) {
+			init((Spinner)partenza, (Spinner)arrivo, (TimePicker)orario, (DatePicker)data);
+		}
+	}
+	
+	private void init(AutoCompleteTextView partenza, AutoCompleteTextView arrivo, TimePicker orario, DatePicker data) {
+		toSearch.setPartenza(partenza.getText().toString());
+		toSearch.setArrivo(arrivo.getText().toString());
+		toSearch.setOra(orario.getCurrentHour().toString());
+		toSearch.setMinuti(orario.getCurrentMinute().toString());
+		toSearch.setGiorno("" + data.getDayOfMonth());
+		toSearch.setMese("" + data.getMonth());
+		toSearch.setAnno("" + data.getYear());
+	}
+
+	private void init(Spinner partenza, Spinner arrivo, TimePicker orario, DatePicker data) {
+		toSearch.setPartenza(partenza.getSelectedItem().toString());
+		toSearch.setArrivo(arrivo.getSelectedItem().toString());
+		toSearch.setOra(orario.getCurrentHour().toString());
+		toSearch.setMinuti(orario.getCurrentMinute().toString());
+		toSearch.setGiorno("" + data.getDayOfMonth());
+		toSearch.setMese("" + data.getMonth());
+		toSearch.setAnno("" + data.getYear());
 	}
 }

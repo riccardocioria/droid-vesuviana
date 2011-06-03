@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Errore {
 	@SerializedName("codice")
-	public String codice;
+	private String codice;
 
 	/**
 	 * @param codice the codice to set

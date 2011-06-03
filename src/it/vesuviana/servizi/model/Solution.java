@@ -1,6 +1,9 @@
 package it.vesuviana.servizi.model;
 
-public class Solution {
+import java.io.Serializable;
+
+public class Solution implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private String partenza;
 	private String arrivo;
 	private String ora;
@@ -76,6 +79,8 @@ public class Solution {
 	 * @param giorno the giorno to set
 	 */
 	public void setGiorno(String giorno) {
+		if(giorno.length()==1)
+			giorno = "0" + giorno;
 		this.giorno = giorno;
 	}
 
@@ -90,6 +95,8 @@ public class Solution {
 	 * @param mese the mese to set
 	 */
 	public void setMese(String mese) {
+		if(mese.length()==1)
+			mese = "0" + mese;
 		this.mese = mese;
 	}
 
@@ -110,7 +117,7 @@ public class Solution {
 	/**
 	 * @return the date in format gg/mm/aaaa
 	 */
-	public String getData() {
+	public String getData() {		
 		return giorno + "/" + mese + "/" + anno;
 	}
 }

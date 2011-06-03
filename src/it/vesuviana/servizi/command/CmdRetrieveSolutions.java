@@ -1,7 +1,7 @@
 package it.vesuviana.servizi.command;
 
 import it.vesuviana.servizi.command.request.Request;
-import it.vesuviana.servizi.model.soluzioni.Soluzioni;
+import it.vesuviana.servizi.model.soluzioni.JSONSoluzioni;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ public class CmdRetrieveSolutions extends Command {
 		Gson gson = new Gson();
 		Reader reader = new StringReader(json);
 
-		Soluzioni response = gson.fromJson(reader, Soluzioni.class);
+		JSONSoluzioni response = gson.fromJson(reader, JSONSoluzioni.class);
 
 		return response;
 	}

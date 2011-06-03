@@ -1,5 +1,8 @@
 package it.vesuviana.servizi.model.soluzioni;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Soluzione {
@@ -698,6 +701,20 @@ public class Soluzione {
 	 */
 	public void setCodStazCambio2(Integer codStazCambio2) {
 		this.codStazCambio2 = codStazCambio2;
+	}
+	
+	
+	// MAPPING PER LA ListActivity
+	public static final String ORARIO_PARTENZA = "ORARIO_PARTENZA";
+	public static final String ORARIO_ARRIVO = "ORARIO_ARRIVO";
+	public static final String DATA = "DATA";
+	
+	protected Map<String, String> getMap() {
+		HashMap<String, String> map = new HashMap<String, String>();
+		map.put(ORARIO_PARTENZA, oraPartenza);
+		map.put(ORARIO_ARRIVO, oraArrivo);
+		map.put(DATA, dataUltimaRich);
+		return map;
 	}
 }
 

@@ -28,10 +28,10 @@ public class CercaOnClickListener implements OnClickListener {
 			Dao<Stazione, String> simpleDao = dbHelper.getStazioneDao();
 			Stazione partenza = simpleDao.queryForEq("nome_staz", toSearch.getPartenza()).get(0);
 			Stazione arrivo = simpleDao.queryForEq("nome_staz", toSearch.getArrivo()).get(0);
-			
 			toSearch.setPartenza(partenza.codStazione);
 			toSearch.setArrivo(arrivo.codStazione);
 			Object response = new CmdRetrieveSolutions().execute(new RetrieveSolutionsRequest(toSearch));
+			// TODO continuare con la ricezione del file JSON
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

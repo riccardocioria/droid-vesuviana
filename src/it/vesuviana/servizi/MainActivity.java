@@ -3,8 +3,8 @@ package it.vesuviana.servizi;
 import it.vesuviana.servizi.command.CmdRetrieveStations;
 import it.vesuviana.servizi.command.request.RetrieveStationsRequest;
 import it.vesuviana.servizi.db.OfflineDbOpenHelper;
-import it.vesuviana.servizi.listener.CercaOnClickListener;
 import it.vesuviana.servizi.model.Preference;
+import it.vesuviana.servizi.model.Solution;
 import it.vesuviana.servizi.model.Stazioni;
 import it.vesuviana.servizi.model.Stazioni.Stazione;
 
@@ -16,6 +16,7 @@ import java.util.List;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.j256.ormlite.dao.Dao;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,7 +28,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -35,6 +36,7 @@ import android.widget.Toast;
 public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 	private final String LOG_TAG = getClass().getSimpleName();
 	private final int DEFAULT_LAYOUT = R.layout.main;
+	private Solution toSearch;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -49,14 +51,14 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 			TimePicker orario = (TimePicker)findViewById(R.id.orario);
 			orario.setIs24HourView(true);
 			
-			Button cerca = (Button)findViewById(R.id.cerca);
-			cerca.setOnClickListener(new CercaOnClickListener(
-					findViewById(R.id.partenza),
-					findViewById(R.id.arrivo),
-					findViewById(R.id.orario),
-					findViewById(R.id.data),
-					getHelper()
-			));
+//			Button cerca = (Button)findViewById(R.id.cerca);
+//			cerca.setOnClickListener(new CercaOnClickListener(
+//					findViewById(R.id.partenza),
+//					findViewById(R.id.arrivo),
+//					findViewById(R.id.orario),
+//					findViewById(R.id.data),
+//					getHelper()
+//			));
 			// riempimento delle stazioni in base al layout impostato
 			fillStations(findViewById(R.id.partenza));
 			fillStations(findViewById(R.id.arrivo));
@@ -297,5 +299,60 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 			layout.value = preferredLayout.toString();
 			return preferencesDao.create(layout);
 		}
+	}
+	
+	public void cerca(View view) {
+		init(findViewById(R.id.partenza),
+				findViewById(R.id.arrivo),
+				findViewById(R.id.orario),
+				findViewById(R.id.data)
+		);
+		Dao<Stazione, String> simpleDao;
+		try {
+			simpleDao = getHelper().getStazioneDao();
+			Stazione partenza = simpleDao.queryForEq("nome_staz", toSearch.getPartenza()).get(0);
+			Stazione arrivo = simpleDao.queryForEq("nome_staz", toSearch.getArrivo()).get(0);
+			toSearch.setPartenza(partenza.codStazione);
+			toSearch.setArrivo(arrivo.codStazione);
+//			Object response = new CmdRetrieveSolutions().execute(new RetrieveSolutionsRequest(toSearch));
+			
+			Intent intent = new Intent(this, ShowSearchActivity.class);
+			intent.putExtra("toSearch", toSearch);
+			startActivity(intent);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void init(View partenza, View arrivo, View orario, View data) { 
+		toSearch = new Solution();
+		if(partenza instanceof AutoCompleteTextView && arrivo instanceof AutoCompleteTextView) {
+			init((AutoCompleteTextView)partenza, (AutoCompleteTextView)arrivo, (TimePicker)orario, (DatePicker)data);
+		}
+		else if(partenza instanceof Spinner && arrivo instanceof Spinner) {
+			init((Spinner)partenza, (Spinner)arrivo, (TimePicker)orario, (DatePicker)data);
+		}
+	}
+	
+	private void init(AutoCompleteTextView partenza, AutoCompleteTextView arrivo, TimePicker orario, DatePicker data) {
+		toSearch.setPartenza(partenza.getText().toString());
+		toSearch.setArrivo(arrivo.getText().toString());
+		toSearch.setOra(orario.getCurrentHour().toString());
+		toSearch.setMinuti(orario.getCurrentMinute().toString());
+		toSearch.setGiorno("" + data.getDayOfMonth());
+		toSearch.setMese("" + data.getMonth());
+		toSearch.setAnno("" + data.getYear());
+	}
+
+	private void init(Spinner partenza, Spinner arrivo, TimePicker orario, DatePicker data) {
+		toSearch.setPartenza(partenza.getSelectedItem().toString());
+		toSearch.setArrivo(arrivo.getSelectedItem().toString());
+		toSearch.setOra(orario.getCurrentHour().toString());
+		toSearch.setMinuti(orario.getCurrentMinute().toString());
+		toSearch.setGiorno("" + data.getDayOfMonth());
+		toSearch.setMese("" + data.getMonth());
+		toSearch.setAnno("" + data.getYear());
 	}
 }

@@ -9,7 +9,7 @@ public class RetrieveSolutionsRequest extends Request {
 	}
 	
 	public RetrieveSolutionsRequest(Solution toSearch) {	
-		this("http://servizi.vesuviana.it/Orari/integrazione3/OrarioDinamico/www/FrontJS/jsonServer.asp?l=it&r=Soluzioni&v=soluzioni" 
+		this("http://servizi.vesuviana.it/Orari/integrazione3/OrarioDinamico/www/FrontJS/jsonServer.asp?l=it&r=Soluzioni&v=JSONSoluzioni" 
 				+ "&idStazionePartenza=" + toSearch.getPartenza()
 				+ "&idStazioneArrivo=" + toSearch.getArrivo()
 				+ "&dataPartenza=" + toSearch.getData()

@@ -15,6 +15,7 @@ import java.util.List;
 
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.j256.ormlite.dao.Dao;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -318,6 +319,7 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 			
 			Intent intent = new Intent(this, ShowSearchActivity.class);
 			intent.putExtra("toSearch", toSearch);
+			
 			startActivity(intent);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

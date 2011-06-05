@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="chiudi">Chiudi</string>
+    <string name="caricamento">Attendere, caricamento in corso...</string>
     <string name="spinnerLayout">Menu a discesa</string>
     <string name="autoCompleteLayout">Auto Completamento</string>
     <string name="search">Cerca</string>

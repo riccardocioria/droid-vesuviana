@@ -7,37 +7,97 @@ import it.vesuviana.servizi.model.Solution;
 import it.vesuviana.servizi.model.soluzioni.JSONSoluzioni;
 import it.vesuviana.servizi.model.soluzioni.Soluzione;
 
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class ShowSearchActivity extends ListActivity {
+	static final int DIALOG_DETAIL = 0;
 	protected Soluzione[] soluzioni;
+	ProgressDialog dialog;
+	SearchThread thread;
+	
+	final Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+        	showSearched();
+        	dialog.dismiss();
+        }
+    };
+    
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//		//set layout
-		//		setContentView(R.layout.solutions_row);
-		Solution toSearch = (Solution) getIntent().getSerializableExtra("toSearch");
-		try {
-			JSONSoluzioni response = (JSONSoluzioni)new CmdRetrieveSolutions().execute(new RetrieveSolutionsRequest(toSearch));
-			soluzioni = response.getJSONSoluzioni()[0].getSoluzioni();
-//			setListAdapter(new SimpleAdapter(this, 
-//					response.getSoluzioni(), 
-//					android.R.layout.simple_list_item_2, 
-//					new String[] {Soluzione.ORARIO_PARTENZA, Soluzione.DATA}, 
-//					new int[] { android.R.id.text1, android.R.id.text2 })
-//			);
-			setListAdapter(new MyAdapter());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		dialog = ProgressDialog.show(ShowSearchActivity.this, "", 
+                getString(R.string.caricamento), true);
+		thread = new SearchThread(handler);
+		thread.start();
+	}
+	
+	private void showSearched() {
+		getListView().setOnItemClickListener(new OnItemClickListener() {
+
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				Context mContext = getApplicationContext();
+				Dialog dialog = new Dialog(mContext);
+				
+				dialog.setContentView(R.layout.detail_dialog);
+				dialog.setTitle("Dettagli viaggio");
+				dialog.setCancelable(true);
+				
+				populateDetailDialog(dialog, position);
+				//TODO show Dialog
+			}
+		});
+		setListAdapter(new MyAdapter());
+	}
+	
+	private void populateDetailDialog(Dialog dialog, int position) {
+		TextView orarioPartenza = (TextView) dialog.findViewById(R.id.dialogOrarioPartenza);
+		TextView orarioArrivo = (TextView) dialog.findViewById(R.id.dialogOrarioArrivo);
+		TextView numCambi = (TextView) dialog.findViewById(R.id.dialogNumCambi);
+		TextView numMezzo1 = (TextView) dialog.findViewById(R.id.dialogNumMezzo1);
+		
+		orarioPartenza.setText(soluzioni[position].getOraPartenza());
+		orarioArrivo.setText(soluzioni[position].getOraArrivo());
+		numCambi.setText(soluzioni[position].getNumCambi().toString());
+		numMezzo1.setText(soluzioni[position].getNumMezzo1().toString());
+	}
+	
+	private final class SearchThread extends Thread {
+		Handler mHandler;
+		
+		public SearchThread(Handler h) {
+			mHandler = h;
+		}
+		@Override 
+		public void run() {
+			Solution toSearch = (Solution) getIntent().getSerializableExtra("toSearch");
+			try {
+				JSONSoluzioni response = (JSONSoluzioni)new CmdRetrieveSolutions().execute(new RetrieveSolutionsRequest(toSearch));
+				soluzioni = response.getJSONSoluzioni()[0].getSoluzioni();
+				mHandler.sendEmptyMessage(RESULT_OK);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
+	
+	
 
 	private final class MyAdapter extends BaseAdapter
 	{
@@ -57,9 +117,7 @@ public class ShowSearchActivity extends ListActivity {
 				wrapper = (RowWrapper) convertView.getTag();
 			}
 			Soluzione soluzione = (Soluzione) getItem(position);
-
 			wrapper.poulate(soluzione);
-			 
 			return convertView;
 		}
 
@@ -82,9 +140,7 @@ public class ShowSearchActivity extends ListActivity {
 	private static class RowWrapper
 	{
 		private TextView partenzaTestView;
-	 
 		private TextView dataTextView;
-	 
 		private TextView arrivoTextView;
 	 
 		public RowWrapper(View convertView)

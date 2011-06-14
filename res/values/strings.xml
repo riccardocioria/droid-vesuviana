@@ -20,4 +20,5 @@
 
 <string name="dbException">Database exeption: </string>
 <string name="connException">Attenzione! Non è presente alcuna connessione, i dati potrebbero essere non aggiornati.</string>
+<string name="titolo">CircumVesuviana</string>
 </resources>

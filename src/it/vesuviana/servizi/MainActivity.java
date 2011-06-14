@@ -161,7 +161,7 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 			((AutoCompleteTextView)view).setOnClickListener(new OnClickListener() {
 				public void onClick(View v) {
 					AutoCompleteTextView textBox = (AutoCompleteTextView)v;
-					if (textBox.getText().equals(getString(R.string.partenza))
+					if (textBox.getText().toString().equals(getString(R.string.partenza))
 							|| textBox.getText().equals(getString(R.string.arrivo))) {
 						textBox.setText("");
 					}
@@ -315,7 +315,6 @@ public class MainActivity extends OrmLiteBaseActivity<OfflineDbOpenHelper>  {
 			Stazione arrivo = simpleDao.queryForEq("nome_staz", toSearch.getArrivo()).get(0);
 			toSearch.setPartenza(partenza.codStazione);
 			toSearch.setArrivo(arrivo.codStazione);
-//			Object response = new CmdRetrieveSolutions().execute(new RetrieveSolutionsRequest(toSearch));
 			
 			Intent intent = new Intent(this, ShowSearchActivity.class);
 			intent.putExtra("toSearch", toSearch);

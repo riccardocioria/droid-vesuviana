@@ -11,7 +11,6 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
 public class ShowSearchActivity extends ListActivity {
@@ -59,6 +57,8 @@ public class ShowSearchActivity extends ListActivity {
 				dialog.setCancelable(true);
 				
 				populateDetailDialog(dialog, position);
+//				dialog.setOwnerActivity(ShowSearchActivity.this);
+//				dialog.show();
 				//TODO show Dialog
 			}
 		});
